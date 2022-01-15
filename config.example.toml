@@ -1,0 +1,5 @@
+[imap]
+server = "imap.my-server.com"
+port = 993
+username = "my-username"
+keyring_secret_name = "security_notifier_imap"
