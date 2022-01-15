@@ -1,0 +1,6 @@
+imap-tools
+opencv-python
+keyring
+keyrings.cryptfile
+toml
+pytest

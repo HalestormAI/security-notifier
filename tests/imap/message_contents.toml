@@ -1,0 +1,80 @@
+[message_examples]
+intrusion = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      intrusion
+EVENT TIME:      2022-01-15,19:37:30
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 01(A1)"""
+
+line_crossing = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      line crossing
+EVENT TIME:      2022-01-15,19:37:36
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 01(A1)"""
+
+motion_cam1 = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Motion Detected
+EVENT TIME:      2022-01-15,19:30:57
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 01(A1)"""
+
+motion_cam2 = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Motion Detected
+EVENT TIME:      2022-01-15,19:37:36
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 02(A2)"""
+
+motion_multi_cameras = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Motion Detected
+EVENT TIME:      2022-01-15,19:30:49
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 01(A1)   Camera 02(A2)"""
+
+invalid_email = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis nibh dignissim, elementum ante non,
+maximus lectus. Pellentesque vestibulum, turpis at condimentum fermentum, massa tellus viverra justo,
+non gravida ex arcu accumsan lectus.
+
+Vivamus ac consequat risus, nec ultricies orci. Suspendisse potenti. Sed eros sem, convallis ac dapibus mattis,
+placerat sed quam. Morbi mollis tellus a tortor pulvinar dapibus. Praesent quis vehicula neque.
+"""
+
+motion_invalid_date = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Motion Detected
+EVENT TIME:      The day before yesterday
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 02(A2)"""
+
+motion_invalid_cameras = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Motion Detected
+EVENT TIME:      2022-01-15,19:30:49
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Saw it with my own eyes"""
+
+invalid_event = """This is an automatically generated e-mail from your DVR.
+
+EVENT TYPE:      Cow jumped over the moon
+EVENT TIME:      2022-01-15,19:30:49
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 02(A2)"""
+
+missing_event = """This is an automatically generated e-mail from your DVR.
+
+EVENT TIME:      2022-01-15,19:30:49
+DVR NAME:         Embedded Net DVR
+DVR S/N:          0123456789ABCDE01234567ABCD
+CAMERA NAME(NUM):    Camera 02(A2)"""
