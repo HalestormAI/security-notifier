@@ -3,7 +3,7 @@ from typing import Text, Any, List
 
 import pytest
 
-from config import Config, ClashingFieldException
+from security_notifier.config import Config, ClashingFieldException
 
 
 def check_nested_item(cfg: Config, keys: List[Text], expected_value: Any):

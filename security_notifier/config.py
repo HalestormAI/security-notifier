@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import logging
-import os.path
 from pathlib import Path
 from typing import Any, Text, Dict, Optional, Union
 
 import toml
 
-import log_helper
+from .log_helper import get_logger
 
-logger = log_helper.get(__name__)
+logger = get_logger(__name__)
 
 TextPath = Union[Text, Path]
 
@@ -23,7 +22,7 @@ class ClashingFieldException(Exception):
 
 
 class Config:
-    DEFAULT_CONFIG_PATH: TextPath = "./config.toml"
+    DEFAULT_CONFIG_PATH: TextPath = "config.toml"
     LOG_LEVEL = logging.DEBUG
 
     _instance: Dict[TextPath, Config] = {}
@@ -84,7 +83,7 @@ class Config:
         self.save()
 
     def load(self):
-        if not os.path.isfile(self._file_path):
+        if not Path(self._file_path).is_file():
             logger.warning("Config file does not exist - creating an empty file.")
             self._data = {}
             self.save()

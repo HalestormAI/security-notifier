@@ -4,7 +4,7 @@ from typing import Text, Optional
 
 from keyrings.cryptfile.cryptfile import CryptFileKeyring
 
-from config import Config
+from ..config import Config
 
 
 def _get_keyring():

@@ -1,10 +1,11 @@
-import imap
-import log_helper
-from config import Config
+
+import security_notifier.imap as imap
+from .log_helper import setup_logger
+from .config import Config
 
 
 def main():
-    log_helper.setup(Config.LOG_LEVEL)
+    setup_logger(Config.LOG_LEVEL)
 
     # Get the initial config instance, so it's loaded when we need it later.
     Config.instance()
