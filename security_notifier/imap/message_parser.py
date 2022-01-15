@@ -59,3 +59,6 @@ def parse_message(message_text: Text) -> DetectionInfo:
         camera_ids,
         date_time
     )
+
+
+__all__ = ['parse_message', 'MessageParseFailure']

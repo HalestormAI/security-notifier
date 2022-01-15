@@ -1,7 +1,7 @@
-
 import security_notifier.imap as imap
-from .log_helper import setup_logger
+from .imap.message_parser import parse_message
 from .config import Config
+from .log_helper import setup_logger
 
 
 def main():
@@ -11,7 +11,9 @@ def main():
     Config.instance()
 
     messages = imap.fetch()
-
+    for m in messages:
+        det = parse_message(m.text)
+        print(det)
 
 if __name__ == "__main__":
     main()
