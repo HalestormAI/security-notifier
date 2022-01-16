@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import Text, List
+from typing import Text, List, Optional
 
 from .detection_info import (
     DetectionInfo,
@@ -49,16 +49,20 @@ def _get_date_time(message_text: Text) -> datetime.datetime:
     return datetime.datetime.strptime(match.group(1), "%Y-%m-%d,%H:%M:%S")
 
 
-def parse_message(message_text: Text) -> DetectionInfo:
-    event_type = _get_event_type(message_text)
-    camera_ids = _get_camera_ids(message_text)
-    date_time = _get_date_time(message_text)
+def parse_message(message_text: Text) -> Optional[DetectionInfo]:
+    try:
+        event_type = _get_event_type(message_text)
+        camera_ids = _get_camera_ids(message_text)
+        date_time = _get_date_time(message_text)
 
-    return DetectionInfo(
-        event_type,
-        camera_ids,
-        date_time
-    )
+        return DetectionInfo(
+            event_type,
+            camera_ids,
+            date_time
+        )
+    except MessageParseFailure as err:
+        logger.warning(str(err))
+        return None
 
 
 __all__ = ['parse_message', 'MessageParseFailure']

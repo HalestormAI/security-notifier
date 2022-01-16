@@ -3,8 +3,30 @@ server = "imap.my-server.com"
 port = 993
 username = "my-username"
 keyring_secret_name = "security_notifier_imap"
-unseen_only = false
+unseen_only = true
+processed_folder = "processed"
+polling_frequency = 30
 
 [cctv_alerts]
-email_sender = "myname@mydevice.url"
+email_sender = "filter@senderfromdvr.com"
 email_subject_filter = "Embedded Net DVR"
+
+[dvr]
+keyring_secret_name = "security_notifier_dvr"
+username = "admin"
+host = "192.168.1.123"
+rtsp_port = 554
+camera_fps = 15
+stream_to_capture = 2
+
+[stream_capture]
+detection_clip_length = 5
+storage_location = "/path/to/storage/cctv_recordings"
+max_capture_processes = 2
+
+[dvr]
+keyring_secret_name = "security_notifier_dvr"
+username = "admin"
+host = "192.168.1.241"
+rtsp_port = 554
+camera_fps = 15

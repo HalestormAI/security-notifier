@@ -3,7 +3,8 @@ from typing import Text, Any, List
 
 import pytest
 
-from security_notifier.config import Config, ClashingFieldException
+from security_notifier.config import Config, ClashingFieldException, InvalidNestedIndexException, \
+    MissingConfigEntryException
 
 
 def check_nested_item(cfg: Config, keys: List[Text], expected_value: Any):
@@ -114,7 +115,7 @@ def test_set_clashing_nested_field(tmp_path: Path):
     check_nested_item(new_cfg, ["container", "inner", "inner2"], 7)
 
 
-def test_get_nested_item(tmp_path: Path):
+def _create_mock_config(tmp_path: Path):
     _test_list = ["a", "b", "c"]
     _test_dict = {
         "a": 0,
@@ -132,6 +133,11 @@ def test_get_nested_item(tmp_path: Path):
         "top_level": 4
     }
     cfg.save()
+    return cfg, _test_list, _test_dict
+
+
+def test_get_nested_item(tmp_path: Path):
+    cfg, _test_list, _test_dict = _create_mock_config(tmp_path)
 
     # Test top level getter access
     assert cfg.get("top_level") == 4, "Top level value was incorrect"
@@ -147,8 +153,27 @@ def test_get_nested_item(tmp_path: Path):
     assert all([k in retrieved_dict for k in _test_dict]), "Nested dict keys differed"
     assert all([retrieved_dict[k] == v for k, v in _test_dict.items()]), "Nested dict values differed"
 
-    with pytest.raises(KeyError):
+    with pytest.raises(MissingConfigEntryException):
         cfg.get("This key doesn't exist")
 
     assert cfg.get("This key doesn't exist", default_val=42) == 42
 
+
+def test_get_missing_nested_item(tmp_path: Path):
+    cfg, _, _ = _create_mock_config(tmp_path)
+
+    with pytest.raises(MissingConfigEntryException):
+        cfg.get("container_doesnt_exist")
+    with pytest.raises(MissingConfigEntryException):
+        cfg.get("container.missing_item")
+    with pytest.raises(InvalidNestedIndexException):
+        cfg.get("container.inner_list.no_such_child")
+
+
+def test_with_none_default(tmp_path: Path):
+    cfg, _, _ = _create_mock_config(tmp_path)
+
+    with pytest.raises(MissingConfigEntryException):
+        cfg.get("container.missing_item")
+
+    assert cfg.get("container.missing_item", None) is None
