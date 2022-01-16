@@ -45,7 +45,7 @@ class Config:
                 ptr = ptr[i]
 
             return ptr
-        except KeyError as err:
+        except (KeyError, NameError) as err:
             if default_val is not None:
                 return default_val
             raise err
