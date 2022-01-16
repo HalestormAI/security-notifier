@@ -21,7 +21,7 @@ from .writer import (
 logger = get_logger(__name__, logging.DEBUG)
 
 
-def get_rtsp_frame(event: DetectionInfo, camera_idx: Optional[int] = None):
+def get_rtsp_capture(event: DetectionInfo, camera_idx: Optional[int] = None):
     cfg = Config.instance()
 
     cam_uris = get_capture_uris(event, camera_idx)
