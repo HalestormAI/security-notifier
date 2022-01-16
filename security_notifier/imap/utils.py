@@ -11,7 +11,7 @@ def _full_mailbox_name(delim="/"):
     """Get the full mailbox name, including 'INBOX'. Allows the user to specify the delimiter as we need pipe '|' for
     creating / querying the folder and a slash '/' for using it."""
     cfg = Config.instance()
-    fld = cfg.get('imap.processed_folder', False)
+    fld = cfg.get('imap.processed_folder', None)
     if not fld:
         return None
 

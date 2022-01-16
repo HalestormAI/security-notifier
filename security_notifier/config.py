@@ -21,6 +21,22 @@ class ClashingFieldException(Exception):
     pass
 
 
+class MissingConfigEntryException(Exception):
+    pass
+
+
+class InvalidNestedIndexException(Exception):
+    pass
+
+
+class DefaultValue:
+    """We need to be able to differentiate between the user passing None as a default config value, and the user not
+    providing a default value (in which case we will error about missing keys)."""
+
+    def __init__(self, value):
+        self.value = value
+
+
 class Config:
     DEFAULT_CONFIG_PATH: TextPath = "config.toml"
     LOG_LEVEL = logging.DEBUG
@@ -33,7 +49,7 @@ class Config:
 
         self.load()
 
-    def get(self, key: Text, default_val: Optional[Any] = None) -> Any:
+    def get(self, key: Text, default_val: Union[Optional[Any], DefaultValue] = DefaultValue(None)) -> Any:
         if self._data is None:
             raise ConfigNotInitialisedException("Config has not been initialised - have you called `load()`?")
 
@@ -42,13 +58,15 @@ class Config:
         try:
             ptr = self._data
             for i in keys:
+                if not isinstance(ptr, dict):
+                    raise InvalidNestedIndexException(f"Trying to get field {i} from config item that is not a dict.")
                 ptr = ptr[i]
 
             return ptr
-        except (KeyError, NameError) as err:
-            if default_val is not None:
+        except KeyError as err:
+            if not isinstance(default_val, DefaultValue):
                 return default_val
-            raise err
+            raise MissingConfigEntryException(f"Couldn't find key {key} in config.")
 
     def set(self, key: Text, value: Any, force: bool = False):
         if self._data is None:
