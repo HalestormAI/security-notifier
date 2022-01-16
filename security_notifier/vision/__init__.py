@@ -2,13 +2,13 @@ import datetime
 import logging
 import time
 from pathlib import Path
-from typing import Optional, Text
+from typing import Optional, Text, List
 
 import cv2
+import numpy as np
 
 from security_notifier.config import Config
 from security_notifier.imap import DetectionInfo
-from security_notifier.imap.detection_info import EventType
 from security_notifier.keyring_helper import (
     get_password,
     set_password,
@@ -65,25 +65,41 @@ def _event_to_filename(event: DetectionInfo, camera_idx: int = 0) -> Path:
     output_directory = output_directory / f"{event.date_and_time.year}-{event.date_and_time.month:02d}"
     output_directory.mkdir(parents=True, exist_ok=True)
 
-    filename = f"{day_time}__{event.type.name.lower()}_{event.camera_ids[camera_idx]}.mkv"
+    cam_id_str = "-".join(str(i) for i in event.camera_ids) if camera_idx is None else event.camera_ids[camera_idx]
+
+    filename = f"{day_time}__{event.type.name.lower()}_{cam_id_str}.mkv"
     return output_directory / filename
 
 
-# TODO: Better support for multiple cameras
-def get_rtsp_frame(event: DetectionInfo, camera_idx: int = 0):
-    def create_writer(current_frame):
+def _get_capture_uris(event: DetectionInfo, camera_idx: Optional[int] = None) -> List[Text]:
+    cams_to_capture = [camera_idx] if camera_idx is not None else range(len(event.camera_ids))
+    return [_get_rtsp_url(event, c) for c in cams_to_capture]
+
+
+def get_rtsp_frame(event: DetectionInfo, camera_idx: Optional[int] = None):
+    def create_writer(width, height):
         output_path = str(_event_to_filename(event, camera_idx).absolute())
         logger.info(f"Writing capture to {output_path}")
         fourcc = cv2.VideoWriter_fourcc(*'X264')
-        return cv2.VideoWriter(output_path, fourcc, fps, (current_frame.shape[1], current_frame.shape[0]))
+        return cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    def write_all_frames(writer, imgs):
+        if len(imgs) == 1:
+            writer.write(imgs[0])
+            return
+
+        output = np.concatenate(imgs, axis=1)
+        writer.write(output)
 
     cfg = Config.instance()
-    cam_uri = _get_rtsp_url(event, camera_idx)
-    logger.info(f"Reading capture from {cam_uri}")
+
+    cam_uris = _get_capture_uris(event, camera_idx)
+    for c in cam_uris:
+        logger.info(f"Reading capture from {c}")
 
     fps = cfg.get("dvr.camera_fps", 15)
 
-    cap = cv2.VideoCapture(cam_uri)
+    caps = [cv2.VideoCapture(u) for u in cam_uris]
 
     # OpenCV / RTSP doesn't seem to kill the feed at "endtime", so we'll have to manually do it.
     # TODO: If find a way to fast-fwd this feed, will need to account for the time difference.
@@ -94,18 +110,20 @@ def get_rtsp_frame(event: DetectionInfo, camera_idx: int = 0):
     writer = None
     while run_time < end_time:
         run_time = time.time()
-        ret, img = cap.read()
-        if not ret:
-            raise NoFrameFromFeedException("Failed to capture frame from RTSP feed.")
+        imgs = []
+        for c_idx, cap in enumerate(caps):
+            ret, img = cap.read()
+            imgs.append(img)
+            if not ret:
+                raise NoFrameFromFeedException(f"Failed to capture frame from RTSP feed for capture {c_idx}.")
 
         if writer is None:
-            writer = create_writer(img)
-        writer.write(img)
+            # TODO: Just tiling horizontally for now. Probably want to be smarter than this later
+            desired_width = imgs[0].shape[1] * len(caps)
+            writer = create_writer(desired_width, imgs[0].shape[0])
 
-    cap.release()
+        write_all_frames(writer, imgs)
+
+    for cap in caps:
+        cap.release()
     writer.release()
-
-
-if __name__ == "__main__":
-    event = DetectionInfo(EventType.Motion, [1], datetime.datetime.now() - datetime.timedelta(hours=4))
-    get_rtsp_frame(event, 0)
