@@ -38,7 +38,7 @@ class DefaultValue:
 
 
 class Config:
-    DEFAULT_CONFIG_PATH: TextPath = "config.toml"
+    DEFAULT_CONFIG_PATH: TextPath = Path(__file__).parent.parent / "config.toml"
     LOG_LEVEL = logging.DEBUG
 
     _instance: Dict[TextPath, Config] = {}
