@@ -20,3 +20,4 @@ camera_fps = 15
 
 [stream_capture]
 detection_clip_length = 5
+storage_location = "/path/to/storage/cctv_recordings"
