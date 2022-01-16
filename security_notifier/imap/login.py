@@ -2,6 +2,8 @@ import getpass
 from os import getenv
 from typing import Text, Optional
 
+import imap_tools
+from imap_tools import MailBox
 from keyrings.cryptfile.cryptfile import CryptFileKeyring
 
 from ..config import Config
@@ -30,3 +32,11 @@ def set_imap_password(imap_passwd: Optional[Text] = None):
 
 def imap_password_is_set() -> bool:
     return get_imap_password() is not None
+
+
+def get_mailbox() -> imap_tools.MailBox:
+    cfg = Config.instance()
+
+    if not imap_password_is_set():
+        set_imap_password()
+    return MailBox(cfg.get("imap.server")).login(cfg.get("imap.username"), get_imap_password(), 'INBOX')

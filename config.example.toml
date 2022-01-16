@@ -4,6 +4,7 @@ port = 993
 username = "my-username"
 keyring_secret_name = "security_notifier_imap"
 unseen_only = false
+processed_folder = "processed"
 
 [cctv_alerts]
 email_sender = "myname@mydevice.url"

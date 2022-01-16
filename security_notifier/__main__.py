@@ -1,6 +1,5 @@
-import security_notifier.imap as imap
+from security_notifier.imap import get_events
 from .config import Config
-from .imap.message_parser import parse_message
 from .log_helper import setup_logger
 
 
@@ -9,11 +8,7 @@ def main():
 
     # Get the initial config instance, so it's loaded when we need it later.
     Config.instance()
-
-    messages = imap.fetch()
-    for m in messages:
-        det = parse_message(m.text)
-        print(det)
+    [print(e) for e in get_events()]
 
 
 if __name__ == "__main__":
