@@ -20,7 +20,8 @@ def _get_rtsp_url(event: DetectionInfo, camera_idx: int = 0) -> Text:
     host = cfg.get("dvr.host")
     port = cfg.get("dvr.rtsp_port", 554)
 
-    device_id = f"{event.camera_ids[camera_idx]}01"
+    stream_id = cfg.get("dvr.stream_to_capture", 1)
+    device_id = f"{event.camera_ids[camera_idx]}{stream_id:02d}"
 
     start_time = event.date_and_time.strftime("%Y%m%dT%H%M%SZ")
 

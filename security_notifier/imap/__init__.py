@@ -42,12 +42,14 @@ def _fetch_cctv_alerts() -> List[imap_tools.message.MailMessage]:
 def get_events() -> List[DetectionInfo]:
     """Fetch all new events from the inbox"""
     messages = _fetch_cctv_alerts()
+    logger.info(f"Downloaded {len(messages)} events since last pull")
     ids = [m.uid for m in messages]
 
     detections: List[DetectionInfo] = []
 
     for m in messages:
         det = parse_message(m.text)
+        logger.debug(det)
         if det is not None:
             detections.append(det)
     move_processed_messages(ids)

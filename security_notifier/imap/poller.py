@@ -3,7 +3,7 @@ import datetime
 import random
 from multiprocessing import Process
 from multiprocessing import Value
-from typing import Optional
+from typing import Optional, Iterable, Callable
 
 from security_notifier.config import Config
 from security_notifier.imap import get_events
@@ -24,8 +24,16 @@ def _generate_event_list():
     return [random_event() for _ in range(num_detections)]
 
 
+def print_handler(events: Iterable[DetectionInfo]):
+    print(e for e in events)
+
+
 class EmailPoller(Process):
-    def __init__(self, running_flag: Value, polling_freq: int, event_generator=get_events):
+    def __init__(self,
+                 running_flag: Value,
+                 polling_freq: int,
+                 event_generator: Callable = get_events,
+                 event_handler: Callable = print_handler):
         super().__init__()
         self.detection_queue: asyncio.Queue = asyncio.Queue()
         self.polling_freq: int = polling_freq
@@ -33,12 +41,12 @@ class EmailPoller(Process):
         self.tasks: Optional[asyncio.futures.Future] = None
 
         self.event_generator = event_generator
+        self.event_handler = event_handler
 
     async def get_events(self, queue):
         while bool(self._running_flag.value):
             events = self.event_generator()
-            for e in events:
-                await queue.put(e)
+            await queue.put(events)
             await asyncio.sleep(self.polling_freq)
 
     async def handle_event(self, queue):
@@ -46,8 +54,8 @@ class EmailPoller(Process):
             if queue.empty():
                 await asyncio.sleep(0.5)
                 continue
-            event = await queue.get()
-            print(event)
+            events = await queue.get()
+            self.event_handler(events)
         queue.task_done()
 
     async def run_tasks(self):
@@ -62,16 +70,25 @@ class EmailPoller(Process):
 
 
 class PollerManager:
-    def __init__(self):
+    def __init__(self, event_generator: Callable, event_handler: Callable):
         self.poller: Optional[Process] = None
         self.sentinel = Value('i', 0)
+
+        self.event_generator = event_generator
+        self.event_handler = event_handler
 
     def start(self):
         self.sentinel.value = 1
         polling_freq = Config.instance().get("imap.polling_frequency")
-        self.poller = EmailPoller(self.sentinel, polling_freq=polling_freq)
+        self.poller = EmailPoller(self.sentinel,
+                                  polling_freq=polling_freq,
+                                  event_generator=self.event_generator,
+                                  event_handler=self.event_handler)
         self.poller.start()
 
     def stop(self):
         self.sentinel.value = 0
+        self.poller.join()
+
+    def join(self):
         self.poller.join()

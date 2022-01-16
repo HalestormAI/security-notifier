@@ -1,6 +1,7 @@
 import logging
+import multiprocessing
 import time
-from typing import Optional
+from typing import Optional, List
 
 import cv2
 
@@ -54,3 +55,14 @@ def get_rtsp_capture(event: DetectionInfo, camera_idx: Optional[int] = None):
     for cap in caps:
         cap.release()
     writer.release()
+
+
+# TODO: At the moment, when the capture fails, the whole application crashes out. Needs handling.
+def multi_process_capture(events: List[DetectionInfo]):
+    cfg = Config.instance()
+    max_processes = cfg.get("stream_capture.max_capture_processes", 5)
+
+    # Issue in Python < 3.8 where just using multiprocessing.Pool causes processes to fail due to fork safety
+    # https://stackoverflow.com/a/69405247/168735
+    with multiprocessing.get_context("spawn").Pool(max_processes) as pool:
+        pool.map(get_rtsp_capture, events)
