@@ -23,10 +23,3 @@ stream_to_capture = 2
 detection_clip_length = 5
 storage_location = "/path/to/storage/cctv_recordings"
 max_capture_processes = 2
-
-[dvr]
-keyring_secret_name = "security_notifier_dvr"
-username = "admin"
-host = "192.168.1.241"
-rtsp_port = 554
-camera_fps = 15
