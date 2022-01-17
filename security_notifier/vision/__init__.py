@@ -71,7 +71,6 @@ def _run_retry_loop(all_events: List[DetectionInfo], handler: Callable, p: multi
         status = p.map(handler, retry_events)
 
 
-# TODO: At the moment, when the capture fails, the whole application crashes out. Needs handling.
 def multi_process_capture(events: List[DetectionInfo], handler: Callable = get_rtsp_capture):
     cfg = Config.instance()
     max_processes = cfg.get("stream_capture.max_capture_processes", 5)
