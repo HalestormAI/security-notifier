@@ -4,3 +4,4 @@ keyring
 keyrings.cryptfile
 toml
 pytest
+pytest-mock
